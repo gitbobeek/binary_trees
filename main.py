@@ -3,6 +3,7 @@ import binary_search_tree as bst
 import red_black_tree as rbt
 import search
 import utilities as util
+from drawing import draw_tree
 
 import matplotlib.pyplot as plt
 import random
@@ -95,5 +96,44 @@ def get_height_on_number_of_elements_dependance():
                'Red-Black Tree Height Dependence on Keys',
                'green', 'green', 'purple')
 
+
+def show_search_variations():
+    BST = bst.BinarySearchTree()
+    AVL = avl.AVLTree()
+    RBT = rbt.RedBlackTree()
+
+    keys = [_ for _ in range(10)]
+    random.shuffle(keys)
+    for key in keys:
+        BST.insert(key)
+        AVL.root = AVL.insert(AVL.root, key)
+        RBT.insert(key)
+
+    travs = { 'inorder', 'postorder', 'preorder' }
+
+    for trav in travs:
+        print("BST")
+        search.traverse(BST.root, trav)
+        print('\n')
+        print("AVL")
+        search.traverse(AVL.root, trav)
+        print('\n')
+        print("RBT")
+        search.traverse(RBT.root, trav)
+        print('\n')
+
+    print("Обход в ширину")
+    print("BST")
+    print(search.bfs(BST.root))
+    print('\n')
+    print("AVL")
+    print(search.bfs(AVL.root))
+    print('\n')
+    print("RBT")
+    print(search.bfs(RBT.root))
+    print('\n')
+
+
 if __name__ == "__main__":
     get_height_on_number_of_elements_dependance()
+    show_search_variations()
