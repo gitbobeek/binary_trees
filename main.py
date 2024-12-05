@@ -3,11 +3,11 @@ import binary_search_tree as bst
 import red_black_tree as rbt
 import search
 import utilities as util
-from drawing import draw_tree
 
 import matplotlib.pyplot as plt
 import random
 import numpy as np
+from scipy.optimize import curve_fit
 
 def generate_bst_heights():
     bst_heights = []
@@ -35,7 +35,6 @@ def generate_avl_heights():
 
     return avl_heights
 
-
 def generate_rb_heights():
     rb_heights = []
 
@@ -50,17 +49,21 @@ def generate_rb_heights():
     return rb_heights
 
 
+def model(x, a, b):
+    return a * np.log(x) + b
+
 def calculate_regression(n, heights):
-    coefficients = np.polyfit(n, heights, 2)
-    polynomial = np.poly1d(coefficients)
-    equation = f"h = {coefficients[0]:.10f}n² + {coefficients[1]:.6f}n + {coefficients[2]:.2f}"
-    return polynomial, equation
+    n = np.array(n)
+    heights = np.array(heights)[:len(n)]
+    popt, _ = curve_fit(model, n, heights)
+    equation = f"h = {popt[0]:.10f} * log(n) + {popt[1]:.2f}"
+    return popt, equation
 
-def plot_graph(n, heights, polynomial, equation, title, tree_label, fit_color, log_color, height_color):
+def plot_graph(n, heights, popt, equation, title, tree_label, fit_color, log_color, height_color):
     x_fit = np.linspace(min(n), max(n), 500)
-    y_fit = polynomial(x_fit)
+    y_fit = model(x_fit, *popt)
 
-    plt.plot(x_fit, y_fit, color=fit_color, label=f"Regression Polynomial {equation}", linestyle=':')
+    plt.plot(x_fit, y_fit, color=fit_color, label=f"Regression: {equation}", linestyle=':')
     plt.step(n, np.log2(n), label='h = log(n)', color=log_color, linestyle='--', where='post')
     plt.step(n, heights, label=tree_label, color=height_color, where='post')
     plt.xlabel('Number of Keys')
@@ -77,21 +80,21 @@ def get_height_on_number_of_elements_dependance():
     Havl = generate_avl_heights()
     Hrb = generate_rb_heights()
 
-    poly_bst, eq_bst = calculate_regression(number_of_elements, Hbst)
-    poly_avl, eq_avl = calculate_regression(number_of_elements, Havl)
-    poly_rb, eq_rb = calculate_regression(number_of_elements, Hrb)
+    popt_bst, eq_bst = calculate_regression(number_of_elements, Hbst)
+    popt_avl, eq_avl = calculate_regression(number_of_elements, Havl)
+    popt_rb, eq_rb = calculate_regression(number_of_elements, Hrb)
 
-    plot_graph(number_of_elements, Hbst, poly_bst, eq_bst,
+    plot_graph(number_of_elements, Hbst, popt_bst, eq_bst,
                'BST Height vs Number of Keys',
                'BST Height Dependence on Keys',
                'green', 'green', 'blue')
 
-    plot_graph(number_of_elements, Havl, poly_avl, eq_avl,
+    plot_graph(number_of_elements, Havl, popt_avl, eq_avl,
                'AVL Tree Height vs Number of Keys',
                'AVL Height Dependence on Keys',
                'green', 'green', 'red')
 
-    plot_graph(number_of_elements, Hrb, poly_rb, eq_rb,
+    plot_graph(number_of_elements, Hrb, popt_rb, eq_rb,
                'Red-Black Tree Height vs Number of Keys',
                'Red-Black Tree Height Dependence on Keys',
                'green', 'green', 'purple')
