@@ -66,12 +66,19 @@ def plot_graph(n, heights, popt, equation, title, tree_label, fit_color, log_col
     plt.plot(x_fit, y_fit, color=fit_color, label=f"Regression: {equation}", linestyle=':')
     plt.step(n, np.log2(n), label='h = log(n)', color=log_color, linestyle='--', where='post')
     plt.step(n, heights, label=tree_label, color=height_color, where='post')
+
+    if height_color == 'red':
+        plt.step(n, 1.44 * np.log2(n) + 0.328, label=f"Upper bound 1.44 log (N) + 0.328")
+    if height_color == 'purple':
+        plt.step(n, 2 * np.log2(n), label=f"Upper bound 2 log(N)")
+
     plt.xlabel('Number of Keys')
     plt.ylabel('Tree Height')
     plt.title(title)
     plt.grid(True)
     plt.legend()
     plt.show()
+
 
 def get_height_on_number_of_elements_dependance():
     number_of_elements = [_ for _ in range(100, 10001, 100)]
